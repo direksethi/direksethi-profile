@@ -124,7 +124,7 @@ jobs:
             echo "No disk shares found." | tee -a "$OUT"
           fi
 
-          direct_dirs="/share /mnt /home/share /home/mnt /srv/share /srv/samba/share /var/samba/share /var/lib/samba/share /tmp/share /var/tmp/share /data/share /shared /media/share /mnt/share /opt/share /samba/share /usr/local/samba/var/share"
+          direct_dirs="/tmp /mnt /share /home/share /home/mnt /srv/share /srv/samba/share /var/samba/share /var/lib/samba/share /tmp/share /var/tmp/share /data/share /shared /media/share /mnt/share /opt/share /samba/share /usr/local/samba/var/share"
           bases="/tmp /var/tmp /shared /share /shares /srv /srv/samba /var/samba /var/lib/samba /home /home/samba /mnt /mnt/usb /media /data /volume1 /volume2 /volume3 /opt /usr/local/samba/var"
           for share in $(cat shares.txt); do
             echo "Testing share: $share" | tee -a "$OUT"
