@@ -33,6 +33,38 @@ npm run csp     # rewrites CSP_SCRIPT / CSP_STYLE in src/index.js
 Commit the resulting `src/index.js` change. CI fails the build if you forget —
 without it the browser blocks the block and the page renders unstyled.
 
+## Fonts
+
+Both faces in `public/f/` are self-hosted because the CSP sets `font-src 'self'`,
+and are subset to only the characters the headings use. The filename carries a
+content hash, which `cacheControl()` in the Worker keys the immutable one-year
+`Cache-Control` off, so a new file needs a new hash in its name.
+
+| File | Face | Used for |
+| ---- | ---- | -------- |
+| `geist.8c11c909.woff2` | Geist, variable 100-900 | body, `--sans` |
+| `title.fd630d84.woff2` | Source Serif 4, `wght` 400 / `opsz` 24 | headings, `--title` |
+
+`opsz` is instanced to 24 to match the 1.5rem `h1`. Regenerating the heading font
+needs the variable original from google/fonts and fonttools:
+
+```sh
+pyftsubset SourceSerif4-400-opsz24.ttf \
+  --text="Direk Sethi Software Developer & AI Engineer404Pagntfud" \
+  --layout-features="kern,liga,calt" --flavor=woff2 \
+  --no-hinting --desubroutinize --name-IDs="0,1,2,3,4,5,6" \
+  --output-file=title.woff2
+```
+
+The `--text` string is the union of the `h1` text on `index.html` and `404.html`.
+Changing a heading means re-subsetting, or the new characters fall back to Arial.
+
+The `"Title Fallback"` / `"Sans Fallback"` `@font-face` blocks are metric overrides
+against Arial that hold the layout still during the swap. `size-adjust` is the
+font's average character width over `aaabcdeeeefghiijklmnnoopqrstuuvwxyz` plus six
+spaces, divided by Arial's; `ascent-override` and friends are the hhea metrics
+divided by that ratio. Recompute them if either face changes.
+
 ## Deploying
 
 Push to `main`. `.github/workflows/deploy.yml` runs the tests and the CSP check,
