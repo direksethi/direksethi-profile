@@ -48,3 +48,15 @@ npm run deploy  # needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
 
 CI credentials live in the repo's Actions secrets (`CLOUDFLARE_API_TOKEN`,
 `CLOUDFLARE_ACCOUNT_ID`).
+
+## On the devbox
+
+`wrangler dev` binds to localhost by default, which is unreachable over the
+tailnet. Use the LAN script so you can hit it from another machine:
+
+```sh
+npm run dev:lan     # http://devbox:8787
+```
+
+Node lives under nvm there, so a non-interactive shell needs
+`. ~/.nvm/nvm.sh` before `npm` is on PATH.

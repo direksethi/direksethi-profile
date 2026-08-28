@@ -5,6 +5,7 @@
   "description": "direksethi.com — personal site on Cloudflare Workers",
   "scripts": {
     "dev": "wrangler dev",
+    "dev:lan": "wrangler dev --ip 0.0.0.0",
     "test": "node test/routing.test.mjs",
     "csp": "node scripts/csp.mjs",
     "deploy": "wrangler deploy"
