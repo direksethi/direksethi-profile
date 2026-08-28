@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>direksethi.com heading font options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Spectral:ital,wght@0,200;0,300;0,400;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Libre+Baskerville:ital@0;1&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bg:#fff; --fg:#000; --dim:#737373; --body:#525252; --rule:#d4d4d8; --card:#fafafa;
+}
+html[data-theme="dark"]{--bg:#171717; --fg:#fff; --dim:#a3a3a3; --body:#d4d4d4; --rule:#3f3f46; --card:#1f1f1f}
+*,::before,::after{box-sizing:border-box}
+html{font-size:1rem;line-height:1.625;font-family:var(--sans);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.wrap{margin-inline:auto;max-width:42rem;padding:2.5rem 1rem 6rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);
+  display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;padding:.75rem 0;margin-bottom:2rem}
+.bar h2{font-size:.875rem;font-weight:500;margin:0;margin-right:auto;color:var(--body)}
+button{font:inherit;font-size:.8125rem;padding:.35rem .7rem;border:1px solid var(--rule);border-radius:6px;
+  background:transparent;color:var(--body);cursor:pointer}
+button[aria-pressed="true"]{color:var(--fg);border-color:var(--fg)}
+.opt{padding:2rem 0;border-bottom:1px solid var(--rule)}
+.meta{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;margin-bottom:1.25rem}
+.num{font-size:.75rem;font-variant-numeric:tabular-nums;color:var(--dim);min-width:1.5rem}
+.name{font-size:.875rem;font-weight:500;color:var(--fg)}
+.note{font-size:.8125rem;color:var(--dim)}
+h1{margin:0;font-size:1.5rem;line-height:1.5;font-weight:400;color:var(--fg)}
+h1 span{color:var(--dim)}
+.bio{margin-top:1.5rem;font-size:1rem;line-height:1.625;color:var(--body);text-wrap:pretty;max-width:36rem}
+.big h1{font-size:2.75rem;line-height:1.15}
+.big .bio{display:none}
+
+/* candidates */
+.f0  h1{font-family:"Instrument Serif",serif}
+.f0b h1{font-family:"Instrument Serif",serif;letter-spacing:.02em}
+.f0c h1{font-family:"Instrument Serif",serif;letter-spacing:.045em;font-size:1.625rem}
+.f1  h1{font-family:"Newsreader",serif;font-weight:400}
+.f2  h1{font-family:"Fraunces",serif;font-weight:400;font-variation-settings:"opsz" 40,"SOFT" 0,"WONK" 0}
+.f3  h1{font-family:"EB Garamond",serif;font-weight:400;letter-spacing:.005em}
+.f4  h1{font-family:"Spectral",serif;font-weight:300}
+.f5  h1{font-family:"Source Serif 4",serif;font-weight:400}
+.f6  h1{font-family:"Libre Baskerville",serif;font-weight:400;font-size:1.375rem}
+.f7  h1{font-family:"Crimson Pro",serif;font-weight:400;font-size:1.625rem}
+.f8  h1{font-family:"Lora",serif;font-weight:400}
+.f9  h1{font-family:"Playfair Display",serif;font-weight:400}
+.f10 h1{font-family:var(--sans);font-weight:500;letter-spacing:-.015em}
+.f11 h1{font-family:"Geist Mono",ui-monospace,monospace;font-weight:400;letter-spacing:-.02em;font-size:1.375rem}
+.f12 h1{font-family:"Newsreader",serif;font-weight:400;font-style:italic;font-size:1.625rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <h2>Heading font options, body stays Geist</h2>
+    <button id="size" aria-pressed="false">Large size</button>
+    <button id="theme" aria-pressed="false">Dark</button>
+  </div>
+
+  <div class="opt f0">
+    <div class="meta"><span class="num">00</span><span class="name">Instrument Serif, current</span><span class="note">no tracking, 1.5rem, the baseline</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f0b">
+    <div class="meta"><span class="num">01</span><span class="name">Instrument Serif + 0.02em tracking</span><span class="note">same font, one CSS line, opens it up</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f0c">
+    <div class="meta"><span class="num">02</span><span class="name">Instrument Serif + 0.045em, 1.625rem</span><span class="note">airier, closer to how it is meant to sit</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f1">
+    <div class="meta"><span class="num">03</span><span class="name">Newsreader</span><span class="note">open editorial serif, closest safe swap</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f12">
+    <div class="meta"><span class="num">04</span><span class="name">Newsreader Italic</span><span class="note">more personality, still calm</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f5">
+    <div class="meta"><span class="num">05</span><span class="name">Source Serif 4</span><span class="note">neutral, pairs cleanly with a grotesk</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f3">
+    <div class="meta"><span class="num">06</span><span class="name">EB Garamond</span><span class="note">widest fit, classical, very roomy</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f4">
+    <div class="meta"><span class="num">07</span><span class="name">Spectral Light</span><span class="note">generous spacing, slightly technical</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f2">
+    <div class="meta"><span class="num">08</span><span class="name">Fraunces</span><span class="note">quirkier, more distinct at large sizes</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f7">
+    <div class="meta"><span class="num">09</span><span class="name">Crimson Pro</span><span class="note">book serif, warm, needs a size bump</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f8">
+    <div class="meta"><span class="num">10</span><span class="name">Lora</span><span class="note">sturdier, holds up at small sizes</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f6">
+    <div class="meta"><span class="num">11</span><span class="name">Libre Baskerville</span><span class="note">very wide by default, high presence</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f9">
+    <div class="meta"><span class="num">12</span><span class="name">Playfair Display</span><span class="note">high contrast, fashion feel, tighter again</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f10">
+    <div class="meta"><span class="num">13</span><span class="name">Geist Medium, no serif at all</span><span class="note">drops the second font, one file total</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+
+  <div class="opt f11">
+    <div class="meta"><span class="num">14</span><span class="name">Geist Mono</span><span class="note">developer signal, same type family</span></div>
+    <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
+    <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies.</p>
+  </div>
+</div>
+<script>
+var t=document.getElementById("theme"),s=document.getElementById("size"),w=document.querySelector(".wrap");
+t.onclick=function(){var d=document.documentElement.getAttribute("data-theme")==="dark";
+  document.documentElement.setAttribute("data-theme",d?"light":"dark");t.setAttribute("aria-pressed",String(!d));t.textContent=d?"Dark":"Light"};
+s.onclick=function(){var b=w.classList.toggle("big");s.setAttribute("aria-pressed",String(b));s.textContent=b?"Actual size":"Large size"};
+</script>
+</body>
+</html>
