@@ -1,0 +1,15 @@
+{
+  "name": "direksethi-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "direksethi.com — personal site on Cloudflare Workers",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "node test/routing.test.mjs",
+    "csp": "node scripts/csp.mjs",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.126.0"
+  }
+}

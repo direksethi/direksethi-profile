@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Never let two deploys of the same ref race each other onto the edge.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Routing, redirect and cache-policy assertions
+        run: npm test
+
+      # scripts/csp.mjs rewrites the hashes in src/index.js from the inline
+      # blocks in public/*.html. If that produces a diff, someone edited the
+      # HTML without running `npm run csp` and CSP would block the page.
+      - name: CSP hashes match public/*.html
+        run: |
+          npm run csp
+          git diff --exit-code src/index.js \
+            || { echo "::error::CSP hashes are stale — run 'npm run csp' and commit src/index.js"; exit 1; }
+
+      - name: Deploy to Cloudflare Workers
+        if: github.event_name != 'pull_request'
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
