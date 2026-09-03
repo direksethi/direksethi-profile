@@ -73,7 +73,7 @@ h1 span{color:var(--dim)}
 .bio a:focus-visible,.work a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
 
 .work{display:grid;grid-template-columns:1fr;gap:1.625rem 2.5rem;margin-top:1.625rem;font-size:1rem;line-height:1.625;color:var(--body)}
-.role header,.role .row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.role header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
 .role h2{font-size:1rem;line-height:1.625;font-weight:500;color:var(--fg)}
 .role .title,.role .mine{font-size:.875rem;line-height:1.625;color:var(--dim)}
 .role blockquote{margin-top:.75rem;text-wrap:pretty;hanging-punctuation:first}
@@ -81,10 +81,10 @@ h1 span{color:var(--dim)}
 .dot{flex:none;width:.5rem;height:.5rem;margin-top:.5625rem;border-radius:50%}
 .dot.on{background:var(--fg)}
 .dot.off{background:var(--dot-off)}
-.work a.out{display:inline-flex;align-items:center;height:1.625rem;text-decoration:none;color:var(--dim);
+.work a.out{display:inline-flex;align-items:center;gap:.25rem;text-decoration:none;color:var(--dim);
   transition:color .15s cubic-bezier(.4,0,.2,1)}
 .work a.out:hover{color:var(--fg)}
-.out svg{width:.875rem;height:.875rem}
+.out svg{width:.875rem;height:.875rem;flex:none}
 
 footer{position:sticky;top:100vh;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
 footer div,footer em{font-size:.875rem;line-height:1.625;color:var(--body)}
@@ -116,8 +116,8 @@ footer time{font-variant-numeric:tabular-nums}
               <p>&#8220;Direk is the kind of talent you build a company around. A genuine obsession with AI, the instinct to automate whatever can be automated, and the drive to make things truly work. From our first conversation it was clear he doesn&#8217;t just write code, he thinks about the outcome.&#8221;</p>
             </blockquote>
             <div class="mine">
-              <p>Full Stack AI Developer</p>
-              <p class="row"><span>Italy, remote</span><a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" class="out" rel="noopener noreferrer" target="_blank" aria-label="Read Ruben's post on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
+              <p><a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" class="out" rel="noopener noreferrer" target="_blank" aria-label="Full Stack AI Developer at Beavermind, read Ruben's post on LinkedIn">Full Stack AI Developer<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
+              <p>Italy, remote</p>
             </div>
           </article>
           <article class="role">
@@ -132,8 +132,8 @@ footer time{font-variant-numeric:tabular-nums}
               <p>&#8220;Direk has carried responsibility far beyond writing code. He has acted as a true technical leader. He can take a difficult technical problem and make it understandable without oversimplifying it. On a personal level, Direk is trustworthy, loyal, hardworking, and deeply reliable. He brings pride, discipline, and integrity to his work, and he holds himself to a very high standard.&#8221;</p>
             </blockquote>
             <div class="mine">
-              <p>Lead Software Engineer</p>
-              <p class="row"><span>Australia, remote</span><a href="/recommendations/evaheld.pdf" class="out" rel="noopener noreferrer" target="_blank" aria-label="Read Michelle's full recommendation letter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
+              <p><a href="/recommendations/evaheld.pdf" class="out" rel="noopener noreferrer" target="_blank" aria-label="Lead Software Engineer at Evaheld, read Michelle's full recommendation letter">Lead Software Engineer<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
+              <p>Australia, remote</p>
             </div>
           </article>
         </div>

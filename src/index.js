@@ -12,7 +12,7 @@ const CANONICAL = "direksethi.com";
 // Hashes of the inline <script>/<style> blocks in public/*.html.
 // Regenerate with `npm run csp` after editing any inline block.
 const CSP_SCRIPT = "'sha256-ajg4qdzmwGa3nuPtLI6X1W+DZRPeOnPex5UhTeCP6o8=' 'sha256-NBg3ch/D7XAZMIraaKRRQ16WXBy2iVPX/bEJkbIroXA='"; /* AUTO:script */
-const CSP_STYLE = "'sha256-3Avv9NKO4UAK4HezOnmYoLTxsKACpslOaXCpBbw4vq0=' 'sha256-jFFezJ0r/MLniLPEx4V45zuRuRTkuadwJB948zZUrmQ='"; /* AUTO:style */
+const CSP_STYLE = "'sha256-3Avv9NKO4UAK4HezOnmYoLTxsKACpslOaXCpBbw4vq0=' 'sha256-f/k5awDgALFAStCeXhjpOyUQ0oURKHTV/MAOuNlMBf8='"; /* AUTO:style */
 
 const SECURITY = {
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
