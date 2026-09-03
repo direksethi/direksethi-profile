@@ -72,20 +72,22 @@ h1 span{color:var(--dim)}
 .bio a:hover,.work a:hover{text-decoration-color:var(--rule-hover)}
 .bio a:focus-visible,.work a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
 
-.work{margin-top:3.5rem}
-.work h2{font-size:.875rem;line-height:1.625;font-weight:400;color:var(--dim)}
-.roles{display:grid;grid-template-columns:1fr;gap:2.5rem;margin-top:1rem}
-.role h3{font-size:1rem;line-height:1.625;font-weight:500;color:var(--fg)}
-.role .meta{font-size:.875rem;line-height:1.625;color:var(--dim)}
-.role blockquote{margin-top:1rem;font-size:.9375rem;line-height:1.625;color:var(--body);text-wrap:pretty;hanging-punctuation:first}
-.role figcaption{margin-top:.75rem;font-size:.875rem;line-height:1.625;color:var(--dim)}
-.past h3,.past blockquote{color:var(--dim)}
+.work{display:grid;grid-template-columns:1fr;gap:1.625rem 2.5rem;margin-top:1.625rem;font-size:1rem;line-height:1.625;color:var(--body)}
+.role h2{font-size:1rem;line-height:1.625;font-weight:500;color:var(--fg)}
+.role .title,.role .mine{font-size:.875rem;line-height:1.625;color:var(--dim)}
+.role blockquote{margin-top:.75rem;text-wrap:pretty;hanging-punctuation:first}
+.role .mine{margin-top:.75rem}
+.dot{display:inline-block;position:relative;width:.5rem;height:.5rem;margin-right:.5rem;border-radius:50%;vertical-align:.0625rem}
+.dot.on{background:var(--fg)}
+.dot.on::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:ping 2.4s cubic-bezier(0,0,.2,1) infinite}
+.dot.off{border:1px solid currentColor}
+@keyframes ping{0%{transform:scale(1);opacity:.6}70%,100%{transform:scale(2.6);opacity:0}}
 
 footer{position:sticky;top:100vh;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
 footer div,footer em{font-size:.875rem;line-height:1.625;color:var(--body)}
 footer time{font-variant-numeric:tabular-nums}
 
-@media (min-width:640px){.roles{grid-template-columns:1fr 1fr}}
+@media (min-width:640px){.work{grid-template-columns:1fr 1fr}}
 @media (min-width:768px){.wrap{padding-bottom:2.5rem}}
 @media (min-width:1024px){.intro{padding-block:9rem}}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
@@ -99,25 +101,26 @@ footer time{font-variant-numeric:tabular-nums}
         <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
         <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies. My dedication lies in perfecting every detail in everything I create.<br><br>In the past, I&#8217;ve worked with great teams. Read my full story on <a href="https://www.linkedin.com/in/direksethi" rel="noopener noreferrer" target="_blank">LinkedIn</a><br><br>My journey has seen several side projects, and here are a few that are still alive: <a href="https://bothlines.com" rel="noopener noreferrer" target="_blank">Bothlines</a>, <a href="https://toolswim.com" rel="noopener noreferrer" target="_blank">Toolswim</a>, <a href="https://pastewords.direksethi.com" rel="noopener noreferrer" target="_blank">Pastewords</a><br><br>You can find me on <a href="https://x.com/direksethi" rel="me noopener noreferrer" target="_blank">X</a>, <a href="https://github.com/direksethi" rel="me noopener noreferrer" target="_blank">Github</a>, <a href="https://www.linkedin.com/in/direksethi" rel="me noopener noreferrer" target="_blank">LinkedIn</a>, <a href="https://www.instagram.com/direksethi/" rel="me noopener noreferrer" target="_blank">IG</a>, <a href="mailto:direk@direksethi.com" rel="me">Email</a>.</p>
         <div class="work">
-          <h2>Where I&#8217;ve worked</h2>
-          <div class="roles">
-            <figure class="role">
-              <h3>Beavermind</h3>
-              <p class="meta">Full Stack AI Developer<br>Italy, remote. Current role.</p>
-              <blockquote cite="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/">
-                <p>&#8220;Direk is the kind of talent you build a company around. A genuine obsession with AI, the instinct to automate whatever can be automated, and the drive to make things truly work. From our first conversation it was clear he doesn&#8217;t just write code, he thinks about the outcome.&#8221;</p>
-              </blockquote>
-              <figcaption>Ruben Davoli, Founder &amp; CEO. <a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" rel="noopener noreferrer" target="_blank">Read the post on LinkedIn</a></figcaption>
-            </figure>
-            <figure class="role past">
-              <h3>Evaheld</h3>
-              <p class="meta">Lead Software Engineer<br>Australia, remote. Feb 2025 to Jul 2026.</p>
-              <blockquote cite="/recommendations/evaheld.pdf">
-                <p>&#8220;Direk has carried responsibility far beyond writing code. He has acted as a true technical leader. He can take a difficult technical problem and make it understandable without oversimplifying it. He is direct when something is risky, constructive when something needs to change, and solutions-focused when a challenge appears difficult. On a personal level, Direk is trustworthy, loyal, hardworking, and deeply reliable. He has shown genuine care for Evaheld, its users, and the importance of the work being built. That level of care cannot be taught. It is part of who he is. He brings pride, discipline, and integrity to his work, and he holds himself to a very high standard.&#8221;</p>
-              </blockquote>
-              <figcaption>Michelle Gomes, Founder &amp; CEO. <a href="/recommendations/evaheld.pdf" rel="noopener noreferrer" target="_blank">Read the full letter</a></figcaption>
-            </figure>
-          </div>
+          <figure class="role">
+            <figcaption>
+              <h2>Ruben Davoli</h2>
+              <p class="title">Founder &amp; CEO, Beavermind</p>
+            </figcaption>
+            <blockquote cite="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/">
+              <p>&#8220;Direk is the kind of talent you build a company around. A genuine obsession with AI, the instinct to automate whatever can be automated, and the drive to make things truly work. From our first conversation it was clear he doesn&#8217;t just write code, he thinks about the outcome.&#8221;</p>
+            </blockquote>
+            <p class="mine"><span class="dot on" role="img" aria-label="Current role"></span>Full Stack AI Developer, Italy, remote. <a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" rel="noopener noreferrer" target="_blank">Read the post on LinkedIn</a></p>
+          </figure>
+          <figure class="role">
+            <figcaption>
+              <h2>Michelle Gomes</h2>
+              <p class="title">Founder &amp; CEO, Evaheld</p>
+            </figcaption>
+            <blockquote cite="/recommendations/evaheld.pdf">
+              <p>&#8220;Direk has carried responsibility far beyond writing code. He has acted as a true technical leader. He can take a difficult technical problem and make it understandable without oversimplifying it. He is direct when something is risky, constructive when something needs to change, and solutions-focused when a challenge appears difficult. On a personal level, Direk is trustworthy, loyal, hardworking, and deeply reliable. He has shown genuine care for Evaheld, its users, and the importance of the work being built. That level of care cannot be taught. It is part of who he is. He brings pride, discipline, and integrity to his work, and he holds himself to a very high standard.&#8221;</p>
+            </blockquote>
+            <p class="mine"><span class="dot off" role="img" aria-label="Previous role"></span>Lead Software Engineer, Australia, remote. <a href="/recommendations/evaheld.pdf" rel="noopener noreferrer" target="_blank">Read the full letter</a></p>
+          </figure>
         </div>
       </section>
     </div>
