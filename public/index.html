@@ -57,7 +57,7 @@
 html{font-size:1rem;line-height:1.625;font-family:var(--sans);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 body{margin:0;line-height:inherit;background:var(--bg);color:var(--fg);
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-h1,h2,h3,p,figure,blockquote{margin:0}
+h1,h2,p,blockquote{margin:0}
 a{color:inherit;text-decoration:inherit}
 
 .wrap{margin-inline:auto;max-width:42rem;padding-inline:1rem;padding-bottom:1.5rem;min-height:100vh}
@@ -73,14 +73,15 @@ h1 span{color:var(--dim)}
 .bio a:focus-visible,.work a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
 
 .work{display:grid;grid-template-columns:1fr;gap:1.625rem 2.5rem;margin-top:1.625rem;font-size:1rem;line-height:1.625;color:var(--body)}
+.role header,.role .row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
 .role h2{font-size:1rem;line-height:1.625;font-weight:500;color:var(--fg)}
 .role .title,.role .mine{font-size:.875rem;line-height:1.625;color:var(--dim)}
 .role blockquote{margin-top:.75rem;text-wrap:pretty;hanging-punctuation:first}
 .role .mine{margin-top:.75rem}
-.dot{display:inline-block;position:relative;width:.5rem;height:.5rem;margin-right:.5rem;border-radius:50%;vertical-align:.0625rem}
+.dot{flex:none;position:relative;width:.5rem;height:.5rem;margin-top:.5625rem;border-radius:50%}
 .dot.on{background:var(--fg)}
 .dot.on::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:ping 2.4s cubic-bezier(0,0,.2,1) infinite}
-.dot.off{border:1px solid currentColor}
+.dot.off{background:var(--dim)}
 @keyframes ping{0%{transform:scale(1);opacity:.6}70%,100%{transform:scale(2.6);opacity:0}}
 
 footer{position:sticky;top:100vh;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
@@ -101,26 +102,38 @@ footer time{font-variant-numeric:tabular-nums}
         <h1>Direk Sethi<br><span>Software Developer &amp; AI Engineer</span></h1>
         <p class="bio">Passionate about AI, intelligent systems, and building products with emerging technologies. My dedication lies in perfecting every detail in everything I create.<br><br>In the past, I&#8217;ve worked with great teams. Read my full story on <a href="https://www.linkedin.com/in/direksethi" rel="noopener noreferrer" target="_blank">LinkedIn</a><br><br>My journey has seen several side projects, and here are a few that are still alive: <a href="https://bothlines.com" rel="noopener noreferrer" target="_blank">Bothlines</a>, <a href="https://toolswim.com" rel="noopener noreferrer" target="_blank">Toolswim</a>, <a href="https://pastewords.direksethi.com" rel="noopener noreferrer" target="_blank">Pastewords</a><br><br>You can find me on <a href="https://x.com/direksethi" rel="me noopener noreferrer" target="_blank">X</a>, <a href="https://github.com/direksethi" rel="me noopener noreferrer" target="_blank">Github</a>, <a href="https://www.linkedin.com/in/direksethi" rel="me noopener noreferrer" target="_blank">LinkedIn</a>, <a href="https://www.instagram.com/direksethi/" rel="me noopener noreferrer" target="_blank">IG</a>, <a href="mailto:direk@direksethi.com" rel="me">Email</a>.</p>
         <div class="work">
-          <figure class="role">
-            <figcaption>
-              <h2>Ruben Davoli</h2>
-              <p class="title">Founder &amp; CEO, Beavermind</p>
-            </figcaption>
+          <article class="role">
+            <header>
+              <div>
+                <h2>Ruben Davoli</h2>
+                <p class="title">Founder &amp; CEO, Beavermind</p>
+              </div>
+              <span class="dot on" role="img" aria-label="Current role"></span>
+            </header>
             <blockquote cite="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/">
               <p>&#8220;Direk is the kind of talent you build a company around. A genuine obsession with AI, the instinct to automate whatever can be automated, and the drive to make things truly work. From our first conversation it was clear he doesn&#8217;t just write code, he thinks about the outcome.&#8221;</p>
             </blockquote>
-            <p class="mine"><span class="dot on" role="img" aria-label="Current role"></span>Full Stack AI Developer, Italy, remote. <a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" rel="noopener noreferrer" target="_blank">Read the post on LinkedIn</a></p>
-          </figure>
-          <figure class="role">
-            <figcaption>
-              <h2>Michelle Gomes</h2>
-              <p class="title">Founder &amp; CEO, Evaheld</p>
-            </figcaption>
+            <div class="mine">
+              <p>Full Stack AI Developer</p>
+              <p class="row"><span>Italy, remote</span><a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" rel="noopener noreferrer" target="_blank" aria-label="Read Ruben's post on LinkedIn">Read more</a></p>
+            </div>
+          </article>
+          <article class="role">
+            <header>
+              <div>
+                <h2>Michelle Gomes</h2>
+                <p class="title">Founder &amp; CEO, Evaheld</p>
+              </div>
+              <span class="dot off" role="img" aria-label="Previous role"></span>
+            </header>
             <blockquote cite="/recommendations/evaheld.pdf">
               <p>&#8220;Direk has carried responsibility far beyond writing code. He has acted as a true technical leader. He can take a difficult technical problem and make it understandable without oversimplifying it. He is direct when something is risky, constructive when something needs to change, and solutions-focused when a challenge appears difficult. On a personal level, Direk is trustworthy, loyal, hardworking, and deeply reliable. He has shown genuine care for Evaheld, its users, and the importance of the work being built. That level of care cannot be taught. It is part of who he is. He brings pride, discipline, and integrity to his work, and he holds himself to a very high standard.&#8221;</p>
             </blockquote>
-            <p class="mine"><span class="dot off" role="img" aria-label="Previous role"></span>Lead Software Engineer, Australia, remote. <a href="/recommendations/evaheld.pdf" rel="noopener noreferrer" target="_blank">Read the full letter</a></p>
-          </figure>
+            <div class="mine">
+              <p>Lead Software Engineer</p>
+              <p class="row"><span>Australia, remote</span><a href="/recommendations/evaheld.pdf" rel="noopener noreferrer" target="_blank" aria-label="Read Michelle's full recommendation letter">Read more</a></p>
+            </div>
+          </article>
         </div>
       </section>
     </div>
