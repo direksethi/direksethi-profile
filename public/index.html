@@ -47,10 +47,10 @@
   --sans:Sans,"Sans Fallback",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --title:Title,"Title Fallback",ui-serif,Georgia,"Times New Roman",Times,serif;
   --bg:#fff; --fg:#000; --dim:#737373; --body:#525252;
-  --rule:#d4d4d8; --rule-hover:#52525b;
+  --rule:#d4d4d8; --rule-hover:#52525b; --dot-off:#a3a3a3;
 }
 @media (prefers-color-scheme:dark){
-  :root{--bg:#171717; --fg:#fff; --dim:#a3a3a3; --body:#d4d4d4; --rule:#71717a; --rule-hover:#d4d4d8}
+  :root{--bg:#171717; --fg:#fff; --dim:#a3a3a3; --body:#d4d4d4; --rule:#71717a; --rule-hover:#d4d4d8; --dot-off:#525252}
 }
 
 *,::before,::after{box-sizing:border-box}
@@ -78,11 +78,13 @@ h1 span{color:var(--dim)}
 .role .title,.role .mine{font-size:.875rem;line-height:1.625;color:var(--dim)}
 .role blockquote{margin-top:.75rem;text-wrap:pretty;hanging-punctuation:first}
 .role .mine{margin-top:.75rem}
-.dot{flex:none;position:relative;width:.5rem;height:.5rem;margin-top:.5625rem;border-radius:50%}
+.dot{flex:none;width:.5rem;height:.5rem;margin-top:.5625rem;border-radius:50%}
 .dot.on{background:var(--fg)}
-.dot.on::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:ping 2.4s cubic-bezier(0,0,.2,1) infinite}
-.dot.off{background:var(--dim)}
-@keyframes ping{0%{transform:scale(1);opacity:.6}70%,100%{transform:scale(2.6);opacity:0}}
+.dot.off{background:var(--dot-off)}
+.work a.out{display:inline-flex;align-items:center;height:1.625rem;text-decoration:none;color:var(--dim);
+  transition:color .15s cubic-bezier(.4,0,.2,1)}
+.work a.out:hover{color:var(--fg)}
+.out svg{width:.875rem;height:.875rem}
 
 footer{position:sticky;top:100vh;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
 footer div,footer em{font-size:.875rem;line-height:1.625;color:var(--body)}
@@ -115,7 +117,7 @@ footer time{font-variant-numeric:tabular-nums}
             </blockquote>
             <div class="mine">
               <p>Full Stack AI Developer</p>
-              <p class="row"><span>Italy, remote</span><a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" rel="noopener noreferrer" target="_blank" aria-label="Read Ruben's post on LinkedIn">Read more</a></p>
+              <p class="row"><span>Italy, remote</span><a href="https://www.linkedin.com/posts/ruben-davoli_every-so-often-you-meet-someone-and-think-share-7500512345727586304-hGoF/" class="out" rel="noopener noreferrer" target="_blank" aria-label="Read Ruben's post on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
             </div>
           </article>
           <article class="role">
@@ -131,7 +133,7 @@ footer time{font-variant-numeric:tabular-nums}
             </blockquote>
             <div class="mine">
               <p>Lead Software Engineer</p>
-              <p class="row"><span>Australia, remote</span><a href="/recommendations/evaheld.pdf" rel="noopener noreferrer" target="_blank" aria-label="Read Michelle's full recommendation letter">Read more</a></p>
+              <p class="row"><span>Australia, remote</span><a href="/recommendations/evaheld.pdf" class="out" rel="noopener noreferrer" target="_blank" aria-label="Read Michelle's full recommendation letter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></p>
             </div>
           </article>
         </div>
