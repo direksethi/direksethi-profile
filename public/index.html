@@ -143,7 +143,7 @@ footer time{font-variant-numeric:tabular-nums}
   <footer>
     <div>
       <time id="t">&nbsp;</time>
-      <div>Bangkok, TH / Sydney, AU</div>
+      <div>Bangkok, TH / Sydney, AU / Sicily, IT</div>
     </div>
     <em>focus.</em>
   </footer>
@@ -151,7 +151,7 @@ footer time{font-variant-numeric:tabular-nums}
 <script>
 (function(){var e=document.getElementById("t");
 function f(z){return new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:z}).format(new Date())}
-function u(){try{var b=f("Asia/Bangkok"),s=f("Australia/Sydney");e.textContent=b+" / "+s;
+function u(){try{var b=f("Asia/Bangkok"),s=f("Australia/Sydney"),i=f("Europe/Rome");e.textContent=b+" / "+s+" / "+i;
 e.setAttribute("datetime",new Date().toISOString())}catch(x){}}
 u();setInterval(u,15000);document.addEventListener("visibilitychange",function(){document.hidden||u()})})();
 </script>
