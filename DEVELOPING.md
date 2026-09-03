@@ -9,6 +9,7 @@ before falling through to the assets in `public/`.
 | Path                | What it is                                                    |
 | ------------------- | ------------------------------------------------------------- |
 | `public/`           | The site itself — HTML, fonts, icons, sitemap, robots.txt      |
+| `public/recommendations/` | Recommendation letters linked from the quotes on the home page |
 | `src/index.js`      | The Worker: redirects, `Cache-Control`, CSP + security headers |
 | `scripts/csp.mjs`   | Regenerates the CSP hashes for the inline `<script>`/`<style>` |
 | `test/routing.test.mjs` | Redirect, method and cache-policy assertions (no deps)     |

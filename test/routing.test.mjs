@@ -59,10 +59,13 @@ const cc = async (u) =>
   (await worker.fetch(new Request(u, { headers: edge("https") }), env)).headers.get("cache-control");
 const font = await cc("https://direksethi.com/f/geist.8c11c909.woff2");
 const html = await cc("https://direksethi.com/");
+const pdf = await cc("https://direksethi.com/recommendations/evaheld.pdf");
 console.log(`\nfont cache-control: ${font}`);
 console.log(`html cache-control: ${html}`);
+console.log(`pdf  cache-control: ${pdf}`);
 if (!font.includes("immutable")) { console.log("FAIL font not immutable"); fail++; }
 if (html.includes("immutable")) { console.log("FAIL html must not be immutable"); fail++; }
+if (pdf.includes("immutable") || !pdf.includes("max-age=3600")) { console.log("FAIL pdf should be cached for an hour, not immutable"); fail++; }
 
 console.log(fail === 0 ? "\nALL ASSERTIONS PASSED" : `\n${fail} ASSERTION(S) FAILED`);
 process.exit(fail ? 1 : 0);

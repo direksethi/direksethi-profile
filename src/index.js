@@ -11,8 +11,8 @@ const CANONICAL = "direksethi.com";
 
 // Hashes of the inline <script>/<style> blocks in public/*.html.
 // Regenerate with `npm run csp` after editing any inline block.
-const CSP_SCRIPT = "'sha256-Dv0qEWZ7UCd4sY6Uu2wTZnf9XM2AdYqpQZBcOIGOybU=' 'sha256-49GSL494F3Z83biRs/xYCuUY0SNtyR15AFBADfTDJ4c='"; /* AUTO:script */
-const CSP_STYLE = "'sha256-3Avv9NKO4UAK4HezOnmYoLTxsKACpslOaXCpBbw4vq0='"; /* AUTO:style */
+const CSP_SCRIPT = "'sha256-Dv0qEWZ7UCd4sY6Uu2wTZnf9XM2AdYqpQZBcOIGOybU=' 'sha256-NBg3ch/D7XAZMIraaKRRQ16WXBy2iVPX/bEJkbIroXA='"; /* AUTO:script */
+const CSP_STYLE = "'sha256-3Avv9NKO4UAK4HezOnmYoLTxsKACpslOaXCpBbw4vq0=' 'sha256-O+OFkwf0+Y7TjQGrfSK7V8cNAhVd5WfRnHdM3ZlEaoc='"; /* AUTO:style */
 
 const SECURITY = {
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
@@ -45,7 +45,7 @@ function cacheControl(pathname) {
   if (/\.(png|svg|ico)$/.test(pathname)) {
     return "public, max-age=86400, stale-while-revalidate=604800";
   }
-  if (/\.(xml|txt|webmanifest)$/.test(pathname)) {
+  if (/\.(xml|txt|webmanifest|pdf)$/.test(pathname)) {
     return "public, max-age=3600, stale-while-revalidate=86400";
   }
   // HTML: revalidate quickly in the browser, serve hot from the edge.
