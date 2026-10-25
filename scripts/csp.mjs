@@ -10,8 +10,9 @@ const collect = (tag) => {
   const out = new Set();
   for (const page of pages) {
     const html = readFileSync(`public/${page}`, "utf8");
-    const re = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)</${tag}>`, "g");
-    for (const m of html.matchAll(re)) out.add(sha(m[1]));
+    const re = new RegExp(`<${tag}\\b([^>]*)>([\\s\\S]*?)</${tag}>`, "g");
+    // External <script src> tags are allowed by origin in script-src, not by hash.
+    for (const m of html.matchAll(re)) if (!/\bsrc=/.test(m[1])) out.add(sha(m[2]));
   }
   return [...out].join(" ");
 };

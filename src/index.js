@@ -25,7 +25,8 @@ const SECURITY = {
     "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()",
   "Content-Security-Policy": [
     "default-src 'none'",
-    `script-src ${CSP_SCRIPT}`,
+    `script-src https://analytics.direksethi.com ${CSP_SCRIPT}`,
+    "connect-src https://analytics.direksethi.com",
     `style-src ${CSP_STYLE}`,
     "font-src 'self'",
     "img-src 'self' data:",
