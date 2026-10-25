@@ -16,5 +16,7 @@
     { "pattern": "direksethi.com", "custom_domain": true },
     { "pattern": "www.direksethi.com", "custom_domain": true }
   ],
+  // Minilytics analytics, reached first-party at /m/s.js and /m/e.
+  "services": [{ "binding": "MINILYTICS", "service": "minilytics" }],
   "observability": { "enabled": true }
 }

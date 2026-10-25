@@ -25,8 +25,8 @@ const SECURITY = {
     "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()",
   "Content-Security-Policy": [
     "default-src 'none'",
-    `script-src https://analytics.direksethi.com ${CSP_SCRIPT}`,
-    "connect-src https://analytics.direksethi.com",
+    `script-src 'self' ${CSP_SCRIPT}`,
+    "connect-src 'self'",
     `style-src ${CSP_STYLE}`,
     "font-src 'self'",
     "img-src 'self' data:",
@@ -76,6 +76,34 @@ function visitorScheme(request) {
   return null;
 }
 
+/**
+ * Forwards the tracker script and its events to the Minilytics worker over a
+ * service binding. Minilytics would otherwise see this worker's location, so the
+ * visitor's geo is passed in the headers it reads for proxied requests.
+ */
+async function minilytics(request, env, path) {
+  const isScript = path === "/js/script.js";
+  if (request.method !== (isScript ? "GET" : "POST")) {
+    return new Response("Method Not Allowed", { status: 405, headers: SECURITY });
+  }
+  const headers = new Headers({ "User-Agent": request.headers.get("User-Agent") ?? "" });
+  if (!isScript) {
+    const cf = request.cf ?? {};
+    headers.set("Content-Type", "text/plain");
+    if (cf.country) headers.set("x-vercel-ip-country", cf.country);
+    if (cf.regionCode) headers.set("x-vercel-ip-country-region", cf.regionCode);
+    if (cf.city) headers.set("x-vercel-ip-city", encodeURIComponent(cf.city));
+  }
+  const upstream = await env.MINILYTICS.fetch(`https://minilytics${path}`, {
+    method: request.method,
+    headers,
+    body: isScript ? undefined : await request.text(),
+  });
+  const response = new Response(upstream.body, upstream);
+  if (isScript) response.headers.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+  return response;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -91,7 +119,13 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
-    // 2. Only GET/HEAD make sense for a static site.
+    // 2. First-party path to the Minilytics worker (analytics.direksethi.com), so
+    //    ad blockers that block third-party analytics hosts still let it through.
+    if (url.pathname === "/m/s.js" || url.pathname === "/m/e") {
+      return minilytics(request, env, url.pathname === "/m/s.js" ? "/js/script.js" : "/api/event");
+    }
+
+    // 3. Only GET/HEAD make sense for a static site.
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", {
         status: 405,
@@ -99,7 +133,7 @@ export default {
       });
     }
 
-    // 3. Collapse /index.html to / so there is a single canonical URL.
+    // 4. Collapse /index.html to / so there is a single canonical URL.
     if (url.pathname === "/index.html") {
       url.pathname = "/";
       return Response.redirect(url.toString(), 301);

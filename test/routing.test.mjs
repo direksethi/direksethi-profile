@@ -8,6 +8,10 @@ const env = {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       }),
   },
+  MINILYTICS: {
+    fetch: async (url, init) =>
+      new Response(null, { status: new URL(url).pathname === "/api/event" && init.method === "POST" ? 202 : 200 }),
+  },
 };
 
 // The edge reports the visitor's scheme; local dev sends neither header.
@@ -49,6 +53,11 @@ await check("hashed font serves", "https://direksethi.com/f/geist.8c11c909.woff2
 await check("/index.html -> /", "https://direksethi.com/index.html", { headers: edge("https") },
   { status: 301, location: "https://direksethi.com/" });
 await check("POST rejected", "https://direksethi.com/", { method: "POST", headers: edge("https") }, { status: 405 });
+
+// Minilytics first-party proxy
+await check("tracker script served", "https://direksethi.com/m/s.js", { headers: edge("https") }, { status: 200 });
+await check("tracker event forwarded", "https://direksethi.com/m/e", { method: "POST", headers: edge("https") }, { status: 202 });
+await check("tracker event GET rejected", "https://direksethi.com/m/e", { headers: edge("https") }, { status: 405 });
 
 // local dev: no edge headers, so no scheme upgrade and no redirect loop
 await check("local dev http serves", "http://localhost:8787/", {}, { status: 200 });
